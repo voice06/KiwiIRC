@@ -1,8 +1,117 @@
-/*
-    TODO:
-    Create a document explaining the protocol
-    Some way to expire unused callbacks? TTL? expireCallback() function?
-*/
+var SockJsTools = {
+    ReconnectingSocket: function ReconnectingSocket(server_uri, _reserved, socket_options) {
+        var connected = false;
+        var is_reconnecting = false;
+
+        var reconnect_delay = 2000;
+        var reconnect_last_delay = 0;
+        var reconnect_delay_exponential = true;
+        var reconnect_max_attempts = 5;
+        var reconnect_step = 0;
+        var reconnect_tmr = null;
+
+        var original_disconnect;
+        var planned_disconnect = false;
+
+        var socket_arguments = arguments;
+        var socket = initNewSocket();
+
+        // Apply any custom reconnection config
+        if (socket_options) {
+            if (typeof socket_options.reconnect_delay === 'number')
+                reconnect_delay = socket_options.reconnect_delay;
+
+            if (typeof socket_options.reconnect_max_attempts === 'number')
+                reconnect_max_attempts = socket_options.reconnect_max_attempts;
+
+            if (typeof socket_options.reconnect_delay_exponential !== 'undefined')
+                reconnect_delay_exponential = !!socket_options.reconnect_delay_exponential;
+        }
+
+
+        function initNewSocket() {
+            var sock = SockJS.apply(window, socket_arguments);
+
+            sock.addEventListener('open', onOpen);
+            sock.addEventListener('close', onClose);
+
+            original_disconnect = sock.close;
+            sock.close = close;
+
+            return sock;
+        }
+
+
+        function onOpen() {
+            connected = true;
+            is_reconnecting = false;
+            planned_disconnect = false;
+
+            reconnect_step = 0;
+            reconnect_last_delay = 0;
+
+            clearTimeout(reconnect_tmr);
+        }
+
+
+        function onClose() {
+            connected = false;
+
+            if (!planned_disconnect) {
+                reconnect();
+            }
+
+            if (is_reconnecting) {
+                reconnect();
+            }
+        }
+
+
+        function close() {
+            planned_disconnect = true;
+            original_disconnect.call(socket);
+        }
+
+
+        function reconnect() {
+            if (reconnect_step >= reconnect_max_attempts) {
+                socket.dispatchEvent('reconnecting_failed');
+                return;
+            }
+
+            var delay = reconnect_delay_exponential ?
+                (reconnect_last_delay || reconnect_delay / 2) * 2 :
+                reconnect_delay * reconnect_step;
+
+            is_reconnecting = true;
+
+            reconnect_tmr = setTimeout(function() {
+                socket = initNewSocket();
+            }, delay);
+
+            reconnect_last_delay = delay;
+
+            socket.dispatchEvent('reconnecting', {
+                attempt: reconnect_step + 1,
+                max_attempts: reconnect_max_attempts,
+                delay: delay
+            });
+
+            reconnect_step++;
+        }
+
+        return socket;
+    },
+
+
+
+
+    Rpc: (function(){
+        /*
+            TODO:
+            Create a document explaining the protocol
+            Some way to expire unused callbacks? TTL? expireCallback() function?
+        */
 
     function WebsocketRpc(sockjs_socket) {
         var self = this;
@@ -173,7 +282,7 @@
             } else {
                 returnFn = this._noop;
             }
-
+console.log(packet);
             this.emit.apply(this, [packet.method, returnFn].concat(packet.params));
         }
     };
@@ -202,9 +311,7 @@
     WebsocketRpc.prototype._noop = function() {};
 
 
+        return WebsocketRpc;
 
-
-// If running a node module, set the exports
-if (typeof module === 'object' && typeof module.exports !== 'undefined') {
-    module.exports = WebsocketRpc;
-}
+    }())
+};

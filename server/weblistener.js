@@ -1,5 +1,6 @@
 var engine       = require('engine.io'),
-    WebsocketRpc = require('./websocketrpc.js');
+    sockjs = require('sockjs'),
+    WebsocketRpc = require('./websocketrpc.js'),
     events       = require('events'),
     http         = require('http'),
     https        = require('https'),
@@ -71,9 +72,11 @@ var WebListener = module.exports = function (web_config) {
         that.emit('error', err);
     });
 
-    this.ws = engine.attach(hs, {
-        path: (global.config.http_base_path || '') + '/transport'
-    });
+    //this.ws = engine.attach(hs, {
+    //    path: (global.config.http_base_path || '') + '/transport'
+    //});
+    this.ws = sockjs.createServer();
+    this.ws.installHandlers(hs, {prefix: (global.config.http_base_path || '') + '/transport'});
 
     this.ws.on('connection', function(socket) {
         initialiseSocket(socket, function(err, authorised) {
@@ -122,8 +125,7 @@ function rangeCheck(addr, range) {
  * Used later on for webirc, etc functionality
  */
 function initialiseSocket(socket, callback) {
-    var request = socket.request,
-        address = request.connection.remoteAddress,
+    var address = socket.remoteAddress,
         revdns;
 
     // Key/val data stored to the socket to be read later on
@@ -131,7 +133,7 @@ function initialiseSocket(socket, callback) {
     socket.meta = {};
 
     // If a forwarded-for header is found, switch the source address
-    if (request.headers[global.config.http_proxy_ip_header || 'x-forwarded-for']) {
+    if (socket.headers[global.config.http_proxy_ip_header || 'x-forwarded-for']) {
         // Check we're connecting from a whitelisted proxy
         if (!global.config.http_proxies || !rangeCheck(address, global.config.http_proxies)) {
             console.log('Unlisted proxy:', address);
@@ -140,7 +142,7 @@ function initialiseSocket(socket, callback) {
         }
 
         // We're sent from a whitelisted proxy, replace the hosts
-        address = request.headers[global.config.http_proxy_ip_header || 'x-forwarded-for'];
+        address = socket.headers[global.config.http_proxy_ip_header || 'x-forwarded-for'];
     }
 
     socket.meta.real_address = address;

@@ -61,13 +61,11 @@ module.exports.Client = Client;
 // response MAY be given even if error is truthy
 
 Client.prototype.sendIrcCommand = function (command, data, callback) {
-    var c = {command: command, data: data};
-    this.rpc.call('irc', c, callback);
+    this.rpc.call('irc', command, data, callback);
 };
 
 Client.prototype.sendKiwiCommand = function (command, data, callback) {
-    var c = {command: command, data: data};
-    this.rpc.call('kiwi', c, callback);
+    this.rpc.call('kiwi', command, data, callback);
 };
 
 Client.prototype.dispose = function () {

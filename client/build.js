@@ -131,19 +131,19 @@ concat(source_files, function (err, src) {
 
 
 /**
- * Build the engineio client + tools libs
+ * Build the SockJS client + tools libs
  */
-concat([__dirname + '/assets/libs/engine.io.js', __dirname + '/assets/libs/engine.io.tools.js'], function (err, src) {
+concat([__dirname + '/assets/libs/sockjs-0.3.js', __dirname + '/assets/libs/sockjs.tools.js'], function (err, src) {
     if (!err) {
-        fs.writeFile(__dirname + '/assets/libs/engine.io.bundle.js', src, { encoding: FILE_ENCODING }, function (err) {
+        fs.writeFile(__dirname + '/assets/libs/sockjs.bundle.js', src, { encoding: FILE_ENCODING }, function (err) {
             if (!err) {
-                console.log('Built engine.io.bundle.js');
+                console.log('Built sockjs.bundle.js');
             } else {
-                console.error('Error building engine.io.bundle.js:', err);
+                console.error('Error building sockjs.bundle.js:', err);
             }
         });
 
-        var ast = uglifyJS.parse(src, {filename: 'engine.io.bundle.js'});
+        var ast = uglifyJS.parse(src, {filename: 'sockjs.bundle.js'});
         ast.figure_out_scope();
         ast = ast.transform(uglifyJS.Compressor({warnings: false}));
         ast.figure_out_scope();
@@ -151,15 +151,15 @@ concat([__dirname + '/assets/libs/engine.io.js', __dirname + '/assets/libs/engin
         ast.mangle_names();
         src = ast.print_to_string();
 
-        fs.writeFile(__dirname + '/assets/libs/engine.io.bundle.min.js', src, { encoding: FILE_ENCODING }, function (err) {
+        fs.writeFile(__dirname + '/assets/libs/sockjs.bundle.min.js', src, { encoding: FILE_ENCODING }, function (err) {
             if (!err) {
-                console.log('Built engine.io.bundle.min.js');
+                console.log('Built sockjs.bundle.min.js');
             } else {
-                console.error('Error building engine.io.bundle.min.js:', err);
+                console.error('Error building sockjs.bundle.min.js:', err);
             }
         });
     } else {
-        console.error('Error building engine.io.bundle.js and engine.io.bundle.min.js:', err);
+        console.error('Error building sockjs.bundle.js and sockjs.bundle.min.js:', err);
     }
 });
 

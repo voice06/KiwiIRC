@@ -187,8 +187,8 @@ function addScripts(vars, debug) {
     vars.scripts = vars.scripts.concat([
         [
             'src/app.js',
-            'assets/libs/engine.io.js',
-            'assets/libs/engine.io.tools.js'
+            'assets/libs/sockjs-0.3.js',
+            'assets/libs/sockjs.tools.js'
         ],
         [
             'src/models/application.js',
