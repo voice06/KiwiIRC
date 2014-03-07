@@ -233,6 +233,7 @@ html, body { height:100%; }
 #kiwi .server_select .basic { border-bottom: 1px solid gray; margin-bottom:1em; }
 #kiwi .server_select .basic .show_more { }
 #kiwi .server_select .basic tr.pass { display:none; }
+#kiwi .server_select .basic tr.loc_user { display:none; }
 #kiwi .server_select .basic tr.key { display:none; }
 #kiwi .server_select.single_server .basic { border:none; }
 #kiwi .server_select .status {  }
