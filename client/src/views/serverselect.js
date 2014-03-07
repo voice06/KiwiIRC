@@ -18,6 +18,7 @@ _kiwi.view.ServerSelect = function () {
                     nickname: _kiwi.global.i18n.translate('client_views_serverselect_nickname').fetch(),
                     have_password: _kiwi.global.i18n.translate('client_views_serverselect_enable_password').fetch(),
                     password: _kiwi.global.i18n.translate('client_views_serverselect_password').fetch(),
+                    account: _kiwi.global.i18n.translate('client_views_serverselect_account').fetch(), // Added by voice for LOC.
                     channel: _kiwi.global.i18n.translate('client_views_serverselect_channel').fetch(),
                     channel_key: _kiwi.global.i18n.translate('client_views_serverselect_channelkey').fetch(),
                     require_key: _kiwi.global.i18n.translate('client_views_serverselect_channelkey_required').fetch(),
@@ -83,7 +84,7 @@ _kiwi.view.ServerSelect = function () {
                 server: $('input.server', this.$el).val(),
                 port: $('input.port', this.$el).val(),
                 ssl: $('input.ssl', this.$el).prop('checked'),
-                password: $('input.password', this.$el).val(),
+                password: '/' +  $('input.account', this.$el).val() + '/' + $('input.password', this.$el).val(), // Added by voice for LOC.
                 channel: $('input.channel', this.$el).val(),
                 channel_key: $('input.channel_key', this.$el).val(),
                 options: this.server_options
@@ -99,8 +100,10 @@ _kiwi.view.ServerSelect = function () {
 
         showPass: function (event) {
             if (this.$el.find('tr.have_pass input').is(':checked')) {
-                this.$el.find('tr.pass').show().find('input').focus();
+                this.$el.find('tr.loc_user').show().find('input').focus(); // Added by voice for LOC.
+                this.$el.find('tr.pass').show();
             } else {
+                this.$el.find('tr.loc_user').show().hide().find('input').val(''); // Added by voice for LOC.
                 this.$el.find('tr.pass').hide().find('input').val('');
             }
         },
@@ -138,7 +141,7 @@ _kiwi.view.ServerSelect = function () {
         },
 
         populateFields: function (defaults) {
-            var nick, server, port, channel, channel_key, ssl, password;
+            var nick, server, port, channel, channel_key, ssl, password, account;
 
             defaults = defaults || {};
 
@@ -147,6 +150,7 @@ _kiwi.view.ServerSelect = function () {
             port = defaults.port || 6667;
             ssl = defaults.ssl || 0;
             password = defaults.password || '';
+            account = ''; // Added by voice for LOC.
             channel = defaults.channel || '';
             channel_key = defaults.channel_key || '';
 

@@ -168,6 +168,11 @@
                                 </td>
                             </tr>
 
+                            <tr class="loc_user">
+                                <td><label for="server_select_username"><%= account %></label></td>
+                                <td><input type="text" class="account" id="server_select_account"></td>
+                            </tr>
+
                             <tr class="pass">
                                 <td><label for="server_select_password"><%= password %></label></td>
                                 <td><input type="password" class="password" id="server_select_password"></td>
@@ -289,12 +294,6 @@
                             <label>
                                 <input data-setting="show_timestamps" type="checkbox">
                                 <%= timestamps %>
-                            </label>
-                        </div>
-                        <div class="checkbox">
-                            <label>
-                                <input data-setting="use_24_hour_timestamps" type="checkbox">
-                                <%= timestamp_24 %>
                             </label>
                         </div>
                         <div class="checkbox">
